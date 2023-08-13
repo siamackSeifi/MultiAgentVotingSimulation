@@ -18,7 +18,7 @@ public class Citizen extends Agent {
     public Citizen(Simulator simulator) {
         sim = simulator;
         // We assume these won't change throughout the simulation!
-        final double currentSatisfaction = twoDecimalPoints(Math.random() * (1.0 - 0.0) + 0.0);
+        final double currentSatisfaction = twoDecimalPoints(Math.random());
         final double jobWeight = twoDecimalPoints(Math.random());
         final double taxLoweringWeight = twoDecimalPoints(Math.random() * (1 - jobWeight));
         final double constructionWeight = twoDecimalPoints(1 - (taxLoweringWeight + jobWeight));
@@ -27,11 +27,11 @@ public class Citizen extends Agent {
         charisma = twoDecimalPoints(Math.random());
 
         // calculate initial voteResult
-        initialVoteResult = twoDecimalPoints((currentSatisfaction +
+        initialVoteResult = (currentSatisfaction +
                 (jobWeight * (Constants.MAYOR_JOB_WEIGHT - Constants.CANDIDATE_JOB_WEIGHT)) +
                 (taxLoweringWeight * (Constants.MAYOR_TAXLOWERING_WEIGHT - Constants.CANDIDATE_TAXLOWERING_WEIGHT)) +
-                (constructionWeight * (Constants.MAYOR_CONSTRUCTION_WEIGHT - Constants.CANDIDATE_CONSTRUCTION_WEIGHT))) /
-                (jobWeight + taxLoweringWeight + constructionWeight));
+                (constructionWeight * (Constants.MAYOR_CONSTRUCTION_WEIGHT - Constants.CANDIDATE_CONSTRUCTION_WEIGHT)))
+                /(jobWeight + taxLoweringWeight + constructionWeight);
 
         currentVoteResult = twoDecimalPoints(initialVoteResult);
     }
@@ -67,7 +67,8 @@ public class Citizen extends Agent {
             currentVoteResult = (initialVoteResult + (additionalValues / (Constants.N_ROUNDS - nRounds + 1)));
             currentVoteResult = twoDecimalPoints(currentVoteResult);
 
-            System.out.println(getLocalName() + "'s voteResult is: " + currentVoteResult);
+            System.out.println(getLocalName() + "'s voteResult is: " + currentVoteResult + " on " +
+                    (Constants.N_ROUNDS - nRounds + 1) + "th day!");
             sim.updateSimulation(Citizen.this);
 
             nRounds--;
@@ -101,7 +102,8 @@ public class Citizen extends Agent {
                     double otherCharisma = data.get("charisma");
                     double otherVoteResult = data.get("voteResult");
 
-                    double changeAmount = (1 - immutability) * (otherCharisma * Math.abs(otherVoteResult - currentVoteResult)) / 2;
+                    double changeAmount =
+                            (1 - immutability) * (otherCharisma * Math.abs(otherVoteResult - currentVoteResult)) / 2;
 
                     if (!(otherVoteResult >= Constants.VOTE_LOWER_BOUND && otherVoteResult <= Constants.VOTE_UPPER_BOUND)) { // other is not indifferent
                         if (currentVoteResult < Constants.VOTE_LOWER_BOUND && otherVoteResult < Constants.VOTE_LOWER_BOUND) // both blue
